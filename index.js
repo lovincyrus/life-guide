@@ -211,7 +211,7 @@ app.listen(port, () => {
 //           input: {
 //               name: "${data.projectName}",
 //               description: "${data.projectDescription}",
-//               teamIds: ["${process.env.SACY_TEAM_ID}"]
+//               teamIds: ["${process.env.TEAM_ID}"]
 //           }
 //       ) {
 //           success
@@ -251,7 +251,7 @@ app.listen(port, () => {
 //                 title: "${actionItem.title}",
 //                 description: "${actionItem.description}",
 //                 projectId: "${createdProject.id}",
-//                 teamId: "${process.env.SACY_TEAM_ID}"
+//                 teamId: "${process.env.TEAM_ID}"
 //                 stateId: "${process.env.BACKLOG_STATE_ID}"
 //             }
 //         ) {
