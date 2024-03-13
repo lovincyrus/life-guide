@@ -3,6 +3,7 @@ import bodyParser from "body-parser";
 import OpenAI from "openai";
 import { z } from "zod";
 import Instructor from "@instructor-ai/instructor";
+import { uuid } from "uuidv4";
 
 import dotenv from "dotenv";
 dotenv.config();
@@ -48,14 +49,6 @@ const IssuesSchema = z.object({
     .describe("The action items of the selected option"),
 });
 
-function generateUUID() {
-  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
-    var r = (Math.random() * 16) | 0,
-      v = c === "x" ? r : (r & 0x3) | 0x8;
-    return v.toString(16);
-  });
-}
-
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
@@ -84,12 +77,11 @@ async function createChatCompletions(
   then,
   selectedOption = null,
   previousMessages = [],
-  chatId = generateUUID()
+  chatId = uuid()
 ) {
   try {
-    // Ensure chatId exists or is generated
     if (!chatId) {
-      chatId = generateUUID();
+      chatId = uuid();
     }
 
     // Start with the previous messages if any
