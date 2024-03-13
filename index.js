@@ -30,18 +30,23 @@ const IssueSchema = z.object({
     .describe("The potential blockers of the issue"),
 });
 
-// When asking the first time
 const ProjectSchema = z.object({
   projectName: z.string().describe("The name of the project"),
-  projectDescription: z.string().describe("The description of the project."),
+  projectDescription: z
+    .string()
+    .describe("The description of the project. Be specific."),
   options: z.array(OptionSchema).describe("The options to choose from"),
-  actionItems: z.array(IssueSchema).describe("The issues of the project"),
 });
 
-// After providing the selection
-// const ProjectIssuesSchema = z.object({
-//   actionItems: z.array(IssueSchema).describe("The issues of the project"),
-// });
+const IssuesSchema = z.object({
+  projectName: z.string().describe("The name of the project"),
+  projectDescription: z
+    .string()
+    .describe("The description of the project. Be specific."),
+  actionItems: z
+    .array(IssueSchema)
+    .describe("The action items of the selected option"),
+});
 
 function generateUUID() {
   return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
@@ -99,8 +104,7 @@ async function createChatCompletions(
             "You are a life coach and you can help users with their life problems. You understand the user's options, research for them, calculate the best path forward, estimate % based on the end goals, label the % on top of the options and help them make a decision. \n" +
             "User will provide where they are and where they want to be. \n" +
             "You will show me the options to choose from. \n" +
-            "Wait for [SELECTED_OPTION]. Do not proceed until a selected option is provided. \n" +
-            "Create a project name, project description and action items for the [SELECTED_OPTION]. \n",
+            "Wait for [SELECTED_OPTION]. Do not proceed until a selected option is provided. \n",
         },
         {
           role: "user",
@@ -109,20 +113,25 @@ async function createChatCompletions(
       );
     }
 
-    // If a user-selected option is provided, add it to the messages array
+    // TODO: If 'auto' is selected, we can use the AI to select the best option
     if (selectedOption) {
+      messages.push({
+        role: "assistant",
+        content:
+          "Create a project name, project description and action items for the [SELECTED_OPTION]. \n",
+      });
+
       messages.push({
         role: "user",
         content: `[SELECTED_OPTION] ${selectedOption}`,
       });
     }
 
-    // Perform the chat completion with the updated messages array
     const data = await client.chat.completions.create({
       model: "gpt-3.5-turbo",
       response_model: {
-        schema: ProjectSchema,
-        name: "Project",
+        schema: selectedOption ? IssuesSchema : ProjectSchema,
+        name: selectedOption ? "Issues" : "Project",
       },
       messages: messages,
     });
